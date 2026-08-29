@@ -28,7 +28,7 @@ public static class Program
         Console.WriteLine(playerBoard.Render(revealShips: true));
         Console.WriteLine("The computer fleet was placed randomly and remains hidden:");
         Console.WriteLine(computerBoard.Render(revealShips: false));
-        Console.WriteLine("Placement component complete and ready for turn-logic integration.");
+        PlayGame(playerBoard, computerBoard);
     }
 
     private static void PlacePlayerFleet(
@@ -70,6 +70,89 @@ public static class Program
             }
         }
     }
+
+    private static void PlayGame(
+    Board playerBoard,
+    Board computerBoard)
+{
+    GameService gameService = new();
+
+    while (true)
+    {
+        Console.WriteLine("\nYOUR BOARD");
+        Console.WriteLine(
+            gameService.RenderBoard(
+                playerBoard,
+                gameService.ComputerShots,
+                revealShips: true));
+
+        Console.WriteLine("COMPUTER BOARD");
+        Console.WriteLine(
+            gameService.RenderBoard(
+                computerBoard,
+                gameService.PlayerShots,
+                revealShips: false));
+
+        bool playerTurn = true;
+
+        while (playerTurn)
+        {
+            Console.Write("Choose a cell to attack (A1-J10): ");
+            string? input = Console.ReadLine();
+
+            if (!Coordinate.TryParse(input, out Coordinate target))
+            {
+                Console.WriteLine(
+                    "Invalid coordinate. Use A1 through J10.");
+                continue;
+            }
+
+            bool validShot = gameService.TryPlayerShot(
+                computerBoard,
+                target,
+                out bool playerHit,
+                out string playerMessage);
+
+            Console.WriteLine(playerMessage);
+
+            if (!validShot)
+            {
+                continue;
+            }
+
+            if (gameService.HasPlayerWon(computerBoard))
+            {
+                Console.WriteLine(
+                    "\nYou sank all of the computer's ships. You win!");
+                return;
+            }
+
+            playerTurn = playerHit;
+        }
+
+        bool computerTurn = true;
+
+        while (computerTurn)
+        {
+            Coordinate computerTarget =
+                gameService.ComputerShot(
+                    playerBoard,
+                    out bool computerHit,
+                    out string computerMessage);
+
+            Console.WriteLine(computerMessage);
+
+            if (gameService.HasComputerWon(playerBoard))
+            {
+                Console.WriteLine(
+                    "\nThe computer sank all of your ships. Computer wins.");
+                return;
+            }
+
+            computerTurn = computerHit;
+        }
+    }
+}
 
     private static void RunSelfTests()
     {

@@ -1,5 +1,5 @@
 # Battleship CLC - Brandon's C# Component
-
+Loom Video - https://www.loom.com/share/9f621d2ffb54463d8612ff30b7885895
 ## Brandon's Assigned Work
 
 - 10 x 10 board structure
